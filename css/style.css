@@ -1659,3 +1659,7 @@ button:disabled {
 .panel-cuenta-modal .formulario-cuenta:not([hidden]) > *:nth-child(4) { animation-delay: 0.15s; }
 .panel-cuenta-modal .formulario-cuenta:not([hidden]) > *:nth-child(5) { animation-delay: 0.19s; }
 .panel-cuenta-modal .formulario-cuenta:not([hidden]) > *:nth-child(6) { animation-delay: 0.23s; }
+
+.tarjeta-producto {
+    cursor: pointer;
+}

@@ -450,9 +450,13 @@ modalDetalleProducto?.addEventListener("click", (evento) => {
 
 function crearTarjeta(producto, mostrarAccionesPropietario = true) {
     const tarjeta = crearElemento("article", "tarjeta-producto");
+    tarjeta.title = "Haz clic para ver el detalle completo";
+    tarjeta.addEventListener("click", (evento) => {
+        if (evento.target.closest("button")) return;
+        abrirModalDetalleProducto(producto);
+    });
+
     const contenedorImagen = crearElemento("div", "imagen-producto");
-    contenedorImagen.title = "Haz clic para ver el detalle completo";
-    contenedorImagen.addEventListener("click", () => abrirModalDetalleProducto(producto));
 
     const imagen = crearElemento("img");
     imagen.src = obtenerImagen(producto);
