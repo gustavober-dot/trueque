@@ -447,7 +447,7 @@
                                     minlength="6"
                                     autocomplete="new-password"
                                     required>
-                                    <button type="button" class="btn-ver-password" data-target="login-password" aria-label="Mostrar contraseña">
+                                    <button type="button" class="btn-ver-password" data-target="registro-password" aria-label="Mostrar contraseña">
                                         <svg class="icono-ojo" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                             <circle cx="12" cy="12" r="3"></circle>
@@ -592,14 +592,7 @@
                 </div>
 
 
-                <!-- ESTADO INICIAL -->
-                <div class="grupo-campo">
-                    <label for="estado-producto">Estado del producto</label>
 
-                    <select id="estado-producto" required>
-                        <option value="disponible">Disponible</option>
-                    </select>
-                </div>
 
 
                 <div class="acciones-formulario campo-completo">
@@ -730,8 +723,39 @@
                 </form>
             </section>
         </div>
+    
+        <!-- VENTANA EMERGENTE: DETALLE DE PUBLICACIÓN -->
+        <div id="modal-detalle-producto" class="modal-overlay" hidden>
+            <section class="modal-contenido modal-detalle-caja" aria-labelledby="detalle-titulo">
+                <button type="button" id="cerrar-modal-detalle" class="boton-cerrar-modal" aria-label="Cerrar ventana">
+                    ✕
+                </button>
 
+                <div class="detalle-imagen-contenedor">
+                    <img id="detalle-imagen" src="" alt="Imagen del producto">
+                </div>
+
+                <div class="detalle-info">
+                    <div class="detalle-etiquetas">
+                        <span id="detalle-categoria" class="categoria-producto"></span>
+                        <span id="detalle-tipo" class="tipo-publicacion"></span>
+                        <span id="detalle-estado" class="estado-producto"></span>
+                    </div>
+
+                    <h2 id="detalle-titulo"></h2>
+                    <p id="detalle-descripcion" class="detalle-descripcion"></p>
+
+                    <div class="detalle-meta">
+                        <p id="detalle-propietario"></p>
+                        <small id="detalle-fecha"></small>
+                    </div>
+
+                    <div id="detalle-acciones" class="acciones-producto"></div>
+                </div>
+            </section>
+        </div>
     <!-- PIE DE PÁGINA -->
+
     <footer id="contacto" class="pie-pagina">
 
         <div class="pie-contenido">

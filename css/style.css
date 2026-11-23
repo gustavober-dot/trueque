@@ -1448,3 +1448,214 @@ input::-ms-clear {
     background: #1ebe5d;
     transform: translateY(-2px);
 }
+
+/* =========================================
+   24. MEJORAS MÓVIL, ANIMACIONES Y DETALLE
+========================================= */
+
+/* Quita el recuadro azul al tocar botones o enlaces en celular */
+button,
+a,
+input,
+select,
+textarea {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Animaciones suaves para todos los modales */
+@keyframes fadeOverlay {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes aparecerModal {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-overlay {
+    animation: fadeOverlay 0.22s ease-out;
+}
+
+.modal-contenido {
+    animation: aparecerModal 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Imagen clickeable en tarjetas */
+.imagen-producto {
+    cursor: pointer;
+}
+
+.imagen-producto img {
+    transition: transform 0.35s ease;
+}
+
+.imagen-producto:hover img {
+    transform: scale(1.04);
+}
+
+/* Modal de detalle de publicación */
+.modal-detalle-caja {
+    max-width: 680px;
+}
+
+.detalle-imagen-contenedor {
+    width: 100%;
+    max-height: 400px;
+    margin-bottom: 20px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--blanco);
+    border: 1px solid var(--borde);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.detalle-imagen-contenedor img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    display: block;
+}
+
+.detalle-etiquetas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.detalle-info h2 {
+    margin: 6px 0 12px;
+    color: var(--azul);
+    font-family: "Manrope", sans-serif;
+    font-size: 26px;
+    line-height: 1.25;
+}
+
+.detalle-descripcion {
+    color: var(--azul);
+    font-size: 15px;
+    line-height: 1.65;
+    white-space: pre-line;
+    margin: 0 0 16px;
+}
+
+.detalle-meta p {
+    margin: 0 0 4px;
+    color: var(--gris);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.detalle-meta small {
+    color: var(--gris);
+    font-size: 12px;
+}
+
+/* Botones nuevos en solicitudes */
+.boton-revertir,
+.boton-borrar-solicitud {
+    padding: 9px 14px;
+    border: none;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: 0.25s ease;
+}
+
+.boton-revertir {
+    background: #fff2dc;
+    color: #a66a12;
+}
+
+.boton-revertir:hover {
+    background: #ffe4b8;
+}
+
+.boton-borrar-solicitud {
+    background: #edf0f1;
+    color: #68777a;
+}
+
+.boton-borrar-solicitud:hover {
+    background: #ffe0d6;
+    color: #c65d49;
+}
+
+/* =========================================
+   25. ANIMACIONES AL CAMBIAR PESTAÑAS Y CLICK
+========================================= */
+
+/* Efecto táctil al presionar botones y pestañas */
+.boton-principal:active,
+.boton-secundario:active,
+.boton-menu:active,
+.boton-claro:active,
+.tab-btn:active,
+.boton-aceptar:active,
+.boton-rechazar:active,
+.boton-revertir:active,
+.boton-borrar-solicitud:active,
+.boton-whatsapp:active {
+    transform: scale(0.96);
+    transition: transform 0.1s ease;
+}
+
+/* Animación de entrada al cambiar entre Login y Registro */
+@keyframes entradaFormulario {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes entradaCampo {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.panel-cuenta-modal .formulario-cuenta:not([hidden]) {
+    animation: entradaFormulario 0.25s ease-out;
+}
+
+/* Entrada en cascada de los campos y botones dentro del formulario */
+.panel-cuenta-modal .formulario-cuenta:not([hidden]) > * {
+    opacity: 0;
+    animation: entradaCampo 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.panel-cuenta-modal .formulario-cuenta:not([hidden]) > *:nth-child(1) { animation-delay: 0.03s; }
+.panel-cuenta-modal .formulario-cuenta:not([hidden]) > *:nth-child(2) { animation-delay: 0.07s; }
+.panel-cuenta-modal .formulario-cuenta:not([hidden]) > *:nth-child(3) { animation-delay: 0.11s; }
+.panel-cuenta-modal .formulario-cuenta:not([hidden]) > *:nth-child(4) { animation-delay: 0.15s; }
+.panel-cuenta-modal .formulario-cuenta:not([hidden]) > *:nth-child(5) { animation-delay: 0.19s; }
+.panel-cuenta-modal .formulario-cuenta:not([hidden]) > *:nth-child(6) { animation-delay: 0.23s; }

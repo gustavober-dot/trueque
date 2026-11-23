@@ -59,7 +59,6 @@ const campoCategoria = document.querySelector("#categoria");
 const campoTipo = document.querySelector("#tipo");
 const campoDescripcion = document.querySelector("#descripcion");
 const campoImagen = document.querySelector("#imagen-producto");
-const campoEstado = document.querySelector("#estado-producto");
 
 const botonPublicar = document.querySelector("#boton-publicar");
 const botonCancelarEdicion = document.querySelector("#cancelar-edicion");
@@ -122,6 +121,19 @@ const subtituloAceptarSolicitud = document.querySelector("#subtitulo-aceptar-sol
 const campoAceptarWhatsapp = document.querySelector("#aceptar-whatsapp");
 const checkRecordarWhatsappAceptar = document.querySelector("#recordar-whatsapp-aceptar");
 const mensajeAceptarModal = document.querySelector("#mensaje-aceptar-modal");
+
+// Elementos del Modal de Detalle de Producto
+const modalDetalleProducto = document.querySelector("#modal-detalle-producto");
+const btnCerrarModalDetalle = document.querySelector("#cerrar-modal-detalle");
+const detalleImagen = document.querySelector("#detalle-imagen");
+const detalleCategoria = document.querySelector("#detalle-categoria");
+const detalleTipo = document.querySelector("#detalle-tipo");
+const detalleEstado = document.querySelector("#detalle-estado");
+const detalleTitulo = document.querySelector("#detalle-titulo");
+const detalleDescripcion = document.querySelector("#detalle-descripcion");
+const detallePropietario = document.querySelector("#detalle-propietario");
+const detalleFecha = document.querySelector("#detalle-fecha");
+const detalleAcciones = document.querySelector("#detalle-acciones");
 
 
 /* =====================================================
@@ -265,7 +277,8 @@ function actualizarScrollBody() {
     const algunModalAbierto =
         (modalCuenta && !modalCuenta.hidden) ||
         (modalSolicitud && !modalSolicitud.hidden) ||
-        (modalAceptarSolicitud && !modalAceptarSolicitud.hidden);
+        (modalAceptarSolicitud && !modalAceptarSolicitud.hidden) ||
+        (modalDetalleProducto && !modalDetalleProducto.hidden);
 
     document.body.style.overflow = algunModalAbierto ? "hidden" : "";
 }
@@ -373,14 +386,75 @@ campoImagen.addEventListener("change", function () {
 
 
 /* =====================================================
-   6. CREAR TARJETA Y MOSTRAR PRODUCTOS
+   6. CREAR TARJETA, DETALLE Y MOSTRAR PRODUCTOS
 ===================================================== */
+
+function abrirModalDetalleProducto(producto) {
+    if (!modalDetalleProducto) return;
+
+    detalleImagen.src = obtenerImagen(producto);
+    detalleImagen.alt = producto.nombre || "Producto publicado";
+    detalleImagen.onerror = function () {
+        detalleImagen.src = imagenesCategorias[producto.categoria] || "img/portada.jpg";
+    };
+
+    detalleCategoria.textContent = obtenerTextoCategoria(producto.categoria);
+
+    detalleTipo.textContent = obtenerTextoTipo(producto.tipo);
+    detalleTipo.className = "tipo-publicacion" + (producto.tipo === "intercambio" ? " intercambio" : "");
+
+    const estadoActual = producto.estado || "disponible";
+    detalleEstado.textContent = obtenerTextoEstado(estadoActual);
+    detalleEstado.className = "estado-producto " + estadoActual;
+
+    detalleTitulo.textContent = producto.nombre || "Producto sin nombre";
+    detalleDescripcion.textContent = producto.descripcion || "Sin descripción.";
+    detallePropietario.textContent = "Publicado por: " + (producto.usuarioNombre || "Usuario");
+    detalleFecha.textContent = "Fecha: " + obtenerFecha(producto.fecha);
+
+    detalleAcciones.innerHTML = "";
+    const esPropietario = sesionActual && producto.usuarioId === sesionActual.id;
+
+    if (!esPropietario && sesionActual && estadoActual === "disponible" && producto.usuarioId) {
+        const botonInteres = crearElemento("button", "boton-principal", "Me interesa");
+        botonInteres.type = "button";
+        botonInteres.addEventListener("click", () => {
+            cerrarModalDetalleProducto();
+            abrirModalSolicitud(producto);
+        });
+        detalleAcciones.appendChild(botonInteres);
+    } else if (!sesionActual && producto.usuarioId) {
+        const botonAcceder = crearElemento("button", "boton-secundario", "Inicia sesión para contactar");
+        botonAcceder.type = "button";
+        botonAcceder.addEventListener("click", () => {
+            cerrarModalDetalleProducto();
+            abrirModalCuenta("login");
+        });
+        detalleAcciones.appendChild(botonAcceder);
+    }
+
+    modalDetalleProducto.hidden = false;
+    actualizarScrollBody();
+}
+
+function cerrarModalDetalleProducto() {
+    if (!modalDetalleProducto) return;
+    modalDetalleProducto.hidden = true;
+    actualizarScrollBody();
+}
+
+btnCerrarModalDetalle?.addEventListener("click", cerrarModalDetalleProducto);
+modalDetalleProducto?.addEventListener("click", (evento) => {
+    if (evento.target === modalDetalleProducto) cerrarModalDetalleProducto();
+});
 
 function crearTarjeta(producto, mostrarAccionesPropietario = true) {
     const tarjeta = crearElemento("article", "tarjeta-producto");
     const contenedorImagen = crearElemento("div", "imagen-producto");
-    const imagen = crearElemento("img");
+    contenedorImagen.title = "Haz clic para ver el detalle completo";
+    contenedorImagen.addEventListener("click", () => abrirModalDetalleProducto(producto));
 
+    const imagen = crearElemento("img");
     imagen.src = obtenerImagen(producto);
     imagen.alt = producto.nombre || "Producto publicado";
     imagen.loading = "lazy";
@@ -493,7 +567,6 @@ formularioPublicacion.addEventListener("submit", async function (evento) {
     const categoria = campoCategoria.value;
     const tipo = campoTipo.value;
     const descripcion = campoDescripcion.value.trim();
-    const estado = campoEstado.value;
 
     if (nombre.length < 3 || nombre.length > 70) {
         mostrarMensaje(mensajePublicacion, "El nombre debe tener entre 3 y 70 caracteres.", "error");
@@ -534,7 +607,7 @@ formularioPublicacion.addEventListener("submit", async function (evento) {
                 categoria: categoria,
                 tipo: tipo,
                 descripcion: descripcion,
-                estado: productoAnterior.estado || estado,
+                estado: productoAnterior.estado || "disponible",
                 imagen: imagenTemporal || productoAnterior.imagen || imagenesCategorias[productoAnterior.categoria]
             });
 
@@ -553,7 +626,7 @@ formularioPublicacion.addEventListener("submit", async function (evento) {
                 categoria: categoria,
                 tipo: tipo,
                 descripcion: descripcion,
-                estado: estado,
+                estado: "disponible",
                 imagen: imagenTemporal,
                 fecha: new Date().toISOString()
             });
@@ -596,7 +669,6 @@ function editarProducto(id) {
     campoCategoria.value = producto.categoria;
     campoTipo.value = producto.tipo;
     campoDescripcion.value = producto.descripcion;
-    campoEstado.value = "disponible";
     imagenTemporal = null;
 
     if (producto.imagen) {
@@ -716,6 +788,7 @@ modalCuenta?.addEventListener("click", (evento) => {
 
 document.addEventListener("keydown", (evento) => {
     if (evento.key !== "Escape") return;
+    if (modalDetalleProducto && !modalDetalleProducto.hidden) cerrarModalDetalleProducto();
     if (modalSolicitud && !modalSolicitud.hidden) cerrarModalSolicitud();
     if (modalAceptarSolicitud && !modalAceptarSolicitud.hidden) cerrarModalAceptar();
     if (modalCuenta && !modalCuenta.hidden) cerrarModalCuenta();
@@ -727,6 +800,7 @@ formularioRegistro.addEventListener("submit", async function (evento) {
     const nombre = document.querySelector("#registro-nombre").value.trim();
     const email = document.querySelector("#registro-email").value.trim().toLowerCase();
     const password = document.querySelector("#registro-password").value;
+    const botonRegistro = formularioRegistro.querySelector('button[type="submit"]');
 
     if (nombre.length < 3) {
         mostrarMensaje(mensajeRegistro, "Escribe un nombre de al menos 3 caracteres.", "error");
@@ -737,6 +811,13 @@ formularioRegistro.addEventListener("submit", async function (evento) {
         mostrarMensaje(mensajeRegistro, "La contraseña debe tener al menos 6 caracteres.", "error");
         return;
     }
+
+    // Feedback inmediato para evitar sensación de demora
+    if (botonRegistro) {
+        botonRegistro.disabled = true;
+        botonRegistro.textContent = "Creando cuenta...";
+    }
+    mostrarMensaje(mensajeRegistro, "Creando cuenta y enviando correo de verificación...", "correcto", 0);
 
     try {
         const credenciales = await createUserWithEmailAndPassword(auth, email, password);
@@ -758,9 +839,9 @@ formularioRegistro.addEventListener("submit", async function (evento) {
         formularioRegistro.reset();
         mostrarMensaje(
             mensajeRegistro,
-            "¡Cuenta creada! Te enviamos un correo de verificación (revisa también Spam). Confírmalo antes de iniciar sesión.",
+            `¡Cuenta creada! Mandamos la verificación al correo ${email} (revisa también Spam). Confírmalo antes de iniciar sesión.`,
             "correcto",
-            6000
+            8000
         );
 
     } catch (error) {
@@ -769,6 +850,11 @@ formularioRegistro.addEventListener("submit", async function (evento) {
         if (error.code === "auth/email-already-in-use") msg = "Este correo ya está registrado.";
         if (error.code === "auth/invalid-email") msg = "Correo electrónico no válido.";
         mostrarMensaje(mensajeRegistro, msg, "error");
+    } finally {
+        if (botonRegistro) {
+            botonRegistro.disabled = false;
+            botonRegistro.textContent = "Registrarme";
+        }
     }
 });
 
@@ -797,9 +883,9 @@ formularioLogin.addEventListener("submit", async function (evento) {
             await signOut(auth);
             mostrarMensaje(
                 mensajeLogin,
-                "Revisa tu bandeja de entrada o carpeta de Spam y haz clic en el enlace para activar tu cuenta.",
+                `Mandamos la verificación al correo ${email}. Revisa tu bandeja de entrada o Spam para activar tu cuenta.`,
                 "error",
-                5000
+                6000
             );
             return;
         }
@@ -837,7 +923,7 @@ if (botonRecuperar) {
         }
         try {
             await sendPasswordResetEmail(auth, email);
-            mostrarMensaje(mensajeLogin, "Te enviamos un correo para cambiar tu contraseña (revisa Spam).", "correcto", 5000);
+            mostrarMensaje(mensajeLogin, `Te enviamos un correo a ${email} para cambiar tu contraseña (revisa Spam).`, "correcto", 5000);
         } catch (error) {
             console.error("Error al recuperar contraseña:", error);
             mostrarMensaje(mensajeLogin, "No se pudo enviar el correo de recuperación.", "error");
@@ -1114,9 +1200,10 @@ function mostrarSolicitudes() {
             crearElemento("span", "estado-solicitud " + solicitud.estado, "Estado: " + solicitud.estado)
         );
 
-        if (esPropietario && solicitud.estado === "pendiente") {
-            const acciones = crearElemento("div", "acciones-solicitud");
+        const acciones = crearElemento("div", "acciones-solicitud");
 
+        // Pendiente: propietario puede aceptar o rechazar
+        if (esPropietario && solicitud.estado === "pendiente") {
             const botonAceptar = crearElemento("button", "boton-aceptar", "Aceptar");
             botonAceptar.type = "button";
             botonAceptar.addEventListener("click", () => abrirModalAceptar(solicitud));
@@ -1126,10 +1213,9 @@ function mostrarSolicitudes() {
             botonRechazar.addEventListener("click", () => responderSolicitud(solicitud.id, "rechazada"));
 
             acciones.append(botonAceptar, botonRechazar);
-            tarjeta.appendChild(acciones);
         }
 
-        // Botón directo a WhatsApp SOLO cuando la solicitud está aceptada
+        // Aceptada: WhatsApp + opción del propietario de revertir a rechazada
         if (solicitud.estado === "aceptada") {
             const numeroDestino = esPropietario
                 ? solicitud.solicitanteWhatsapp
@@ -1145,11 +1231,27 @@ function mostrarSolicitudes() {
                 enlaceWhatsapp.href = `https://wa.me/${numeroDestino}?text=${encodeURIComponent(textoWhatsapp)}`;
                 enlaceWhatsapp.target = "_blank";
                 enlaceWhatsapp.rel = "noopener noreferrer";
-
-                const contenedorContacto = crearElemento("div", "acciones-solicitud");
-                contenedorContacto.appendChild(enlaceWhatsapp);
-                tarjeta.appendChild(contenedorContacto);
+                acciones.appendChild(enlaceWhatsapp);
             }
+
+            if (esPropietario) {
+                const botonRevertir = crearElemento("button", "boton-revertir", "Cancelar acuerdo");
+                botonRevertir.type = "button";
+                botonRevertir.addEventListener("click", () => revertirSolicitudAceptada(solicitud.id));
+                acciones.appendChild(botonRevertir);
+            }
+        }
+
+        // Rechazada: botón para borrar del historial
+        if (solicitud.estado === "rechazada") {
+            const botonBorrar = crearElemento("button", "boton-borrar-solicitud", "Borrar");
+            botonBorrar.type = "button";
+            botonBorrar.addEventListener("click", () => eliminarSolicitudRechazada(solicitud.id));
+            acciones.appendChild(botonBorrar);
+        }
+
+        if (acciones.children.length > 0) {
+            tarjeta.appendChild(acciones);
         }
 
         contenedorSolicitudes.appendChild(tarjeta);
@@ -1198,6 +1300,44 @@ async function responderSolicitud(id, respuesta, propietarioWhatsapp = "") {
     }
 }
 
+async function revertirSolicitudAceptada(id) {
+    if (!sesionActual) return;
+    const solicitud = solicitudes.find(elemento => elemento.id === id);
+    if (!solicitud || solicitud.propietarioId !== sesionActual.id || solicitud.estado !== "aceptada") return;
+
+    const confirmar = confirm(
+        `¿Deseas cancelar el acuerdo por "${solicitud.productoNombre}"?\n\nLa solicitud pasará a rechazada y el producto volverá a aparecer como Disponible.`
+    );
+    if (!confirmar) return;
+
+    try {
+        await updateDoc(doc(db, "solicitudes", id), { estado: "rechazada" });
+
+        const producto = productos.find(elemento => elemento.id === solicitud.productoId);
+        if (producto) {
+            await updateDoc(doc(db, "productos", producto.id), { estado: "disponible" });
+        }
+    } catch (error) {
+        console.error("Error al revertir solicitud:", error);
+        alert("No se pudo cancelar el acuerdo.");
+    }
+}
+
+async function eliminarSolicitudRechazada(id) {
+    if (!sesionActual) return;
+    const solicitud = solicitudes.find(elemento => elemento.id === id);
+    if (!solicitud || solicitud.estado !== "rechazada") return;
+
+    if (!confirm("¿Deseas borrar esta solicitud rechazada?")) return;
+
+    try {
+        await deleteDoc(doc(db, "solicitudes", id));
+    } catch (error) {
+        console.error("Error al borrar solicitud:", error);
+        alert("No se pudo borrar la solicitud.");
+    }
+}
+
 
 /* =====================================================
    10. PIE DE PÁGINA Y ANIMACIONES
@@ -1223,6 +1363,3 @@ if ("IntersectionObserver" in window) {
 } else {
     elementosAnimados.forEach(el => el.classList.add("visible"));
 }
-
-
-
